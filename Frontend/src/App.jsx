@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const initialCode = {
@@ -28,10 +28,29 @@ function App() {
   const [runState, setRunState] = useState('idle')
   const [runs, setRuns] = useState([])
   const [activeTab, setActiveTab] = useState('output')
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState(() => {
+    try {
+      return window.localStorage.getItem('polyglotmesh-theme') || 'dark'
+    } catch {
+      return 'dark'
+    }
+  })
   const [showSettings, setShowSettings] = useState(false)
   const [projectName, setProjectName] = useState('untitled-project')
   const [toast, setToast] = useState('')
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('polyglotmesh-theme', theme)
+    } catch {
+      // The theme still works for this session if storage is unavailable.
+    }
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  function toggleTheme() {
+    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
+  }
 
   const currentMeta = languageMeta[language]
   const executionCount = runs.length
@@ -107,7 +126,7 @@ function App() {
       </aside>
 
       <main className="main-area">
-        <header className="topbar"><div className="breadcrumbs"><span>Workspace</span><b>/</b><strong>{pageTitle}</strong></div><div className="top-actions"><div className="connection"><span className="status-dot"/> All systems operational</div><button className="icon-button" title="Toggle theme" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>◐</button><button className="icon-button" title="Settings" onClick={() => setShowSettings(true)}>⚙</button><div className="avatar small-avatar">G</div></div></header>
+        <header className="topbar"><div className="breadcrumbs"><span>Workspace</span><b>/</b><strong>{pageTitle}</strong></div><div className="top-actions"><div className="connection"><span className="status-dot"/> All systems operational</div><button className="icon-button theme-toggle" type="button" title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} aria-pressed={theme === 'light'} onClick={toggleTheme}><span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span></button><button className="icon-button" title="Settings" onClick={() => setShowSettings(true)}>⚙</button><div className="avatar small-avatar">G</div></div></header>
 
         {page === 'editor' && <>
           <section className="page-heading editor-heading"><div><div className="eyebrow">DEVELOPMENT ENVIRONMENT</div><h1>Code Editor</h1><p>Write, run and inspect programs across multiple languages.</p></div><div className="heading-actions"><span className="autosave"><span className="status-dot"/> All changes saved</span><button className="secondary-button" onClick={() => notify('Share link copied (demo)')}>↗ Share</button></div></section>
@@ -127,7 +146,7 @@ function App() {
         {page === 'database' && <><section className="page-heading"><div><div className="eyebrow">APPLICATION DATA</div><h1>Data Binding</h1><p>Configure data sources and inspect bound records.</p></div><button className="secondary-button" onClick={() => notify('Connection test is a frontend demo')}>Test connection</button></section><div className="database-grid"><section className="content-card connection-card"><div className="card-header"><h3>Database connection</h3><span className="pending-pill">Not connected</span></div><label>Connection name<input defaultValue="Local MongoDB" /></label><label>Database type<select defaultValue="mongodb"><option value="mongodb">MongoDB</option><option value="other">Other data source</option></select></label><label>Connection string<input type="password" placeholder="mongodb://localhost:27017" /></label><div className="helper-text">Credentials and connection details are not sent anywhere in this frontend demo.</div><button className="run-button full-button" onClick={() => notify('Backend connection endpoint is not configured')}>Save connection</button></section><section className="content-card data-card"><div className="card-header"><h3>Sample collection</h3><span className="demo-label">MOCK DATA</span></div><div className="collection-name">▤ &nbsp; polyglotmesh.samples <span>3 documents</span></div><table><thead><tr><th>_id</th><th>name</th><th>language</th><th>status</th></tr></thead><tbody><tr><td>001</td><td>Hello World</td><td>Python</td><td><span className="success-tag">Ready</span></td></tr><tr><td>002</td><td>Quick Sort</td><td>Java</td><td><span className="success-tag">Ready</span></td></tr><tr><td>003</td><td>Array Demo</td><td>JavaScript</td><td><span className="success-tag">Ready</span></td></tr></tbody></table><p className="chart-footnote">Sample records are static placeholders until database APIs are available.</p></section></div></>}
       </main>
 
-      {showSettings && <div className="modal-backdrop" onClick={() => setShowSettings(false)}><section className="settings-modal" onClick={(event) => event.stopPropagation()}><div className="modal-header"><div><div className="eyebrow">PREFERENCES</div><h2>Workspace settings</h2></div><button className="icon-button" onClick={() => setShowSettings(false)}>×</button></div><label>Project name<input value={projectName} onChange={(event) => setProjectName(event.target.value)} /></label><label>Appearance<select value={theme} onChange={(event) => setTheme(event.target.value)}><option value="dark">Dark</option><option value="light">Light</option></select></label><div className="helper-text">Settings are stored for this page session only. Persistent preferences can be added later.</div><button className="run-button full-button" onClick={() => { setShowSettings(false); notify('Settings applied') }}>Save settings</button></section></div>}
+      {showSettings && <div className="modal-backdrop" onClick={() => setShowSettings(false)}><section className="settings-modal" onClick={(event) => event.stopPropagation()}><div className="modal-header"><div><div className="eyebrow">PREFERENCES</div><h2>Workspace settings</h2></div><button className="icon-button" onClick={() => setShowSettings(false)}>×</button></div><label>Project name<input value={projectName} onChange={(event) => setProjectName(event.target.value)} /></label><label>Appearance<select value={theme} onChange={(event) => setTheme(event.target.value)}><option value="dark">Dark</option><option value="light">Light</option></select></label><div className="helper-text">Your appearance preference is saved in this browser and applies across workspace pages.</div><button className="run-button full-button" onClick={() => { setShowSettings(false); notify('Settings applied') }}>Save settings</button></section></div>}
       {toast && <div className="toast">✓ {toast}</div>}
     </div>
   )
