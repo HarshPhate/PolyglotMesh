@@ -131,7 +131,32 @@ function App() {
         {page === 'editor' && <>
           <section className="page-heading editor-heading"><div><div className="eyebrow">DEVELOPMENT ENVIRONMENT</div><h1>Code Editor</h1><p>Write, run and inspect programs across multiple languages.</p></div><div className="heading-actions"><span className="autosave"><span className="status-dot"/> All changes saved</span><button className="secondary-button" onClick={() => notify('Share link copied (demo)')}>↗ Share</button></div></section>
           <section className="editor-toolbar"><div className="file-label"><span className="file-icon">▣</span><span>{projectName}</span><span className="slash">/</span><strong>main.{currentMeta.ext}</strong><span className="unsaved-dot" /></div><div className="toolbar-right"><span className="runtime-label"><span className="status-dot"/> Runtime preview</span><button className="secondary-button compact" onClick={() => { setCodes({ ...codes, [language]: initialCode[language] }); notify('Starter code restored') }}>↺ Reset</button><button className="run-button" onClick={runCode} disabled={runState === 'running'}><span>▶</span> {runState === 'running' ? 'Running…' : 'Run Code'}</button><button className="stop-button" onClick={stopCode} disabled={runState !== 'running'}>■</button></div></section>
-          <section className="language-tabs">{Object.keys(languageMeta).map((key) => <button key={key} className={`language-tab ${language === key ? 'selected' : ''}`} onClick={() => setLanguage(key)}><span className="language-dot" style={{ background: languageMeta[key].color }} />{languageMeta[key].label}{language === key && <span className="tab-close">×</span>}</button>)}<button className="add-tab" onClick={() => notify('More runtimes can be enabled when backend support is available')}>＋</button><span className="tab-spacer"/><span className="editor-info">UTF-8&nbsp;&nbsp; · &nbsp;&nbsp;Spaces: 4&nbsp;&nbsp; · &nbsp;&nbsp;{currentMeta.label}</span></section>
+          <section className="language-toolbar" aria-label="Editor language selection">
+            <div className="language-picker">
+              <label className="language-picker-label" htmlFor="editor-language">Language</label>
+              <div className="language-select-wrap">
+                <span className="language-dot" style={{ background: currentMeta.color }} aria-hidden="true" />
+                <select
+                  id="editor-language"
+                  className="language-select"
+                  value={language}
+                  onChange={(event) => {
+                    const selectedLanguage = event.target.value
+                    setLanguage(selectedLanguage)
+                    setActiveTab('output')
+                    setOutput([`Ready. ${languageMeta[selectedLanguage].label} selected.`])
+                  }}
+                  aria-label="Select programming language"
+                >
+                  {Object.entries(languageMeta).map(([key, meta]) => (
+                    <option key={key} value={key}>{meta.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <span className="language-toolbar-spacer" />
+            <span className="editor-info">UTF-8&nbsp;&nbsp; · &nbsp;&nbsp;Spaces: 4&nbsp;&nbsp; · &nbsp;&nbsp;{currentMeta.label}</span>
+          </section>
           <div className="workspace-grid"><section className="code-panel"><div className="panel-title"><div><span className="panel-dot"/> main.{currentMeta.ext}</div><div className="panel-tools"><span>⌘</span><button onClick={() => { navigator.clipboard?.writeText(codes[language]); notify('Code copied') }} title="Copy code">▢</button><button onClick={() => setCodes({ ...codes, [language]: '' })} title="Clear editor">⌫</button></div></div><div className="code-editor"><div className="line-numbers">{codes[language].split('\n').map((_, i) => <span key={i}>{i + 1}</span>)}</div><textarea aria-label="Code editor" spellCheck="false" value={codes[language]} onChange={(event) => setCodes({ ...codes, [language]: event.target.value })} /></div><div className="editor-footer"><span>● {runState === 'running' ? 'Executing' : 'Ready'}</span><span>Ln {codes[language].split('\n').length}, Col 1</span></div></section>
             <section className="console-panel"><div className="console-header"><div className="console-tabs"><button className={activeTab === 'output' ? 'active' : ''} onClick={() => setActiveTab('output')}>Output</button><button className={activeTab === 'problems' ? 'active' : ''} onClick={() => setActiveTab('problems')}>Problems <span className="problem-count">0</span></button><button className={activeTab === 'terminal' ? 'active' : ''} onClick={() => setActiveTab('terminal')}>Terminal</button></div><button className="clear-button" onClick={clearOutput}>Clear console</button></div><div className="console-content">{activeTab === 'output' ? output.map((line, index) => <div className={`output-line ${index === 0 && line.includes('successfully') ? 'success-line' : ''}`} key={`${line}-${index}`}>{line || '\u00a0'}</div>) : activeTab === 'problems' ? <div className="empty-state"><span>✓</span><strong>No problems detected</strong><small>Diagnostics will appear here.</small></div> : <div className="output-line">$ PolyglotMesh terminal ready (demo)</div>}</div><div className="console-status"><span><span className="status-dot"/> {runState === 'running' ? 'Running' : 'Idle'}</span><span>Frontend demo · Mock execution</span></div></section></div>
           <section className="bottom-stats"><div className="stat-card"><span className="stat-icon blue">◷</span><div><small>Last execution</small><strong>{runs[0] ? `${runs[0].time} ms` : '—'}</strong></div></div><div className="stat-card"><span className="stat-icon purple">▣</span><div><small>Memory used</small><strong>{runs.length ? '24.8 MB' : '—'}</strong></div></div><div className="stat-card"><span className="stat-icon green">✓</span><div><small>Execution status</small><strong>{runState === 'success' ? 'Successful' : runState === 'running' ? 'Running' : 'Waiting'}</strong></div></div><div className="stat-card"><span className="stat-icon amber">⌁</span><div><small>Runtime</small><strong>Runtime preview</strong></div></div></section>

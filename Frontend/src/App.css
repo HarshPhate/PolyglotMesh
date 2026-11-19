@@ -345,57 +345,80 @@
   border-radius:6px;
   font-size:10px
 }
-.language-tabs {
-  margin:0 34px;
-  border:1px solid var(--line);
-  border-top:0;
-  background:#0f141d;
-  height:39px;
-  display:flex;
-  align-items:stretch;
-  padding:0 9px
+.language-toolbar {
+  margin: 0 34px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 7px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 0;
 }
-.language-tab {
-  border:0;
-  border-bottom:2px solid transparent;
-  background:transparent;
-  color:#8f9bad;
-  padding:0 13px;
-  font-size:10px;
-  display:flex;
-  align-items:center;
-  gap:8px
+
+.language-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.language-tab.selected {
-  border-bottom-color:#6c9cff;
-  color:#e5eaf4;
-  background:#151c28
+
+.language-picker-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
-.language-dot {
-  width:7px;
-  height:7px;
-  border-radius:50%
+
+.language-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 174px;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel2);
+  transition: border-color .18s ease, box-shadow .18s ease;
 }
-.tab-close {
-  font-size:14px;
-  color:#77849a;
-  margin-left:5px
+
+.language-select-wrap:focus-within {
+  border-color: #6c9cff;
+  box-shadow: 0 0 0 3px rgba(108, 156, 255, .14);
 }
-.add-tab {
-  border:0;
-  background:transparent;
-  color:#8190a5;
-  font-size:17px;
-  padding:0 12px
+
+.language-select {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
 }
-.tab-spacer {
-  flex:1
+
+.language-select option {
+  background: var(--panel);
+  color: var(--text);
 }
+
+.language-toolbar-spacer {
+  flex: 1;
+}
+
 .editor-info {
-  align-self:center;
-  font-size:9px;
-  color:#68768a
+  align-self: center;
+  color: var(--muted);
+  font-size: 9px;
 }
+
 .workspace-grid {
   margin:0 34px;
   display:grid;
@@ -1014,15 +1037,11 @@ td:first-child {
 .light .profile {
   border-color:#344258
 }
-.light .editor-toolbar,.light .language-tabs {
+.light .editor-toolbar,.light .language-toolbar {
   background:#fff
 }
-.light .language-tabs {
+.light .language-toolbar {
   border-color:var(--line)
-}
-.light .language-tab.selected {
-  background:#edf3ff;
-  color:#31588f
 }
 .light .code-panel,.light .console-panel {
   background:#fff
@@ -1116,7 +1135,7 @@ td:first-child {
     flex-direction:column;
     align-items:flex-end
   }
-  .editor-toolbar,.language-tabs,.workspace-grid,.bottom-stats {
+  .editor-toolbar,.language-toolbar,.workspace-grid,.bottom-stats {
     margin-left:12px;
     margin-right:12px
   }
@@ -1126,7 +1145,7 @@ td:first-child {
   .runtime-label,.compact {
     display:none
   }
-  .language-tabs {
+  .language-toolbar {
     overflow:auto
   }
   .editor-info {
@@ -1274,26 +1293,16 @@ textarea:focus-visible {
 
 /* Light theme: editor, tabs, console and code surface */
 .app-shell.light .editor-toolbar,
-.app-shell.light .language-tabs {
+.app-shell.light .language-toolbar {
   background: #ffffff;
   border-color: #dce4ef;
 }
 
-.app-shell.light .language-tabs {
+.app-shell.light .language-toolbar {
   border-top: 0;
 }
 
-.app-shell.light .language-tab {
-  color: #63728a;
-}
-
-.app-shell.light .language-tab.selected {
-  background: #edf3ff;
-  color: #2459ad;
-  border-bottom-color: #3976e8;
-}
-
-.app-shell.light .add-tab,
+.app-shell.app-shell.light .add-tab,
 .app-shell.light .editor-info,
 .app-shell.light .tab-close {
   color: #718096;
@@ -1441,5 +1450,27 @@ textarea:focus-visible {
   .breadcrumbs {
     gap: 6px;
     font-size: 10px;
+  }
+}
+
+
+/* Language selector layout */
+@media (max-width: 700px) {
+  .language-toolbar {
+    margin-left: 12px;
+    margin-right: 12px;
+    min-height: 48px;
+    padding: 7px 9px;
+  }
+
+  .language-picker {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .language-select-wrap {
+    min-width: 150px;
+    max-width: 58%;
   }
 }
