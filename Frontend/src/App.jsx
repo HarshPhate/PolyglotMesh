@@ -20,6 +20,12 @@ const navGroups = [
 
 function Icon({ children, className = '' }) { return <span aria-hidden="true" className={`icon ${className}`}>{children}</span> }
 
+let projectItemSequence = 0
+function createProjectItemId(type) {
+  projectItemSequence += 1
+  return `${type}-${Date.now()}-${projectItemSequence}`
+}
+
 function App() {
   const [page, setPage] = useState('editor')
   const [language, setLanguage] = useState('javascript')
@@ -38,6 +44,35 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [projectName, setProjectName] = useState('untitled-project')
   const [toast, setToast] = useState('')
+  const [expandedFolders, setExpandedFolders] = useState(['folder-root'])
+  const [activeFileId, setActiveFileId] = useState('file-main-js')
+  const [projectFiles, setProjectFiles] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem('polyglotmesh-project-files')
+      return saved ? JSON.parse(saved) : {
+        folders: [
+          { id: 'folder-root', name: 'My Projects', parentId: null },
+          { id: 'folder-python', name: 'Python Programs', parentId: 'folder-root' },
+          { id: 'folder-java', name: 'Java Programs', parentId: 'folder-root' },
+        ],
+        files: [
+          { id: 'file-main-js', name: 'main.js', language: 'javascript', parentId: 'folder-root', content: initialCode.javascript },
+          { id: 'file-hello-py', name: 'hello.py', language: 'python', parentId: 'folder-python', content: initialCode.python },
+          { id: 'file-main-java', name: 'Main.java', language: 'java', parentId: 'folder-java', content: initialCode.java },
+        ],
+      }
+    } catch {
+      return { folders: [{ id: 'folder-root', name: 'My Projects', parentId: null }], files: [] }
+    }
+  })
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('polyglotmesh-project-files', JSON.stringify(projectFiles))
+    } catch {
+      // File changes remain available for the current session if storage is unavailable.
+    }
+  }, [projectFiles])
 
   useEffect(() => {
     try {
@@ -62,6 +97,145 @@ function App() {
   function notify(message) {
     setToast(message)
     window.setTimeout(() => setToast(''), 2200)
+  }
+
+  function toggleFolder(folderId) {
+    setExpandedFolders((current) => current.includes(folderId)
+      ? current.filter((id) => id !== folderId)
+      : [...current, folderId])
+  }
+
+  function createFolder(parentId = null) {
+    const name = window.prompt('Enter a folder name:')
+    if (!name?.trim()) return
+    const folder = { id: createProjectItemId('folder'), name: name.trim(), parentId }
+    setProjectFiles((current) => ({ ...current, folders: [...current.folders, folder] }))
+    if (parentId) setExpandedFolders((current) => [...new Set([...current, parentId])])
+    notify(`Folder "${folder.name}" created`)
+  }
+
+  function createProjectFile(parentId = null) {
+    const suggested = languageMeta[language].ext
+    const name = window.prompt(`Enter a file name (for example, program.${suggested}):`)
+    if (!name?.trim()) return
+    const trimmedName = name.trim()
+    const extension = trimmedName.split('.').pop().toLowerCase()
+    const languageForFile = extension === 'py' ? 'python' : extension === 'java' ? 'java' : extension === 'js' ? 'javascript' : null
+    if (!languageForFile) {
+      notify('Use a .js, .py or .java file extension')
+      return
+    }
+    const file = {
+      id: createProjectItemId('file'),
+      name: trimmedName,
+      language: languageForFile,
+      parentId,
+      content: initialCode[languageForFile],
+    }
+    setProjectFiles((current) => ({ ...current, files: [...current.files, file] }))
+    setExpandedFolders((current) => parentId ? [...new Set([...current, parentId])] : current)
+    openProjectFile(file)
+    notify(`File "${file.name}" created`)
+  }
+
+  function openProjectFile(file) {
+    setActiveFileId(file.id)
+    setLanguage(file.language)
+    setCodes((current) => ({ ...current, [file.language]: file.content }))
+    setPage('editor')
+    setOutput([`${file.name} opened in the editor.`])
+    setActiveTab('output')
+  }
+
+  function renameProjectItem(item, type) {
+    const name = window.prompt(`Rename ${type}:`, item.name)
+    if (!name?.trim() || name.trim() === item.name) return
+    setProjectFiles((current) => ({
+      ...current,
+      [type === 'folder' ? 'folders' : 'files']: current[type === 'folder' ? 'folders' : 'files'].map((entry) =>
+        entry.id === item.id ? { ...entry, name: name.trim() } : entry),
+    }))
+    notify(`${type === 'folder' ? 'Folder' : 'File'} renamed`)
+  }
+
+  function deleteProjectItem(item, type) {
+    const confirmed = window.confirm(`Delete "${item.name}"? This cannot be undone.`)
+    if (!confirmed) return
+    if (type === 'file') {
+      setProjectFiles((current) => ({ ...current, files: current.files.filter((entry) => entry.id !== item.id) }))
+      if (activeFileId === item.id) setActiveFileId(null)
+    } else {
+      const descendantFolderIds = new Set([item.id])
+      let changed = true
+      while (changed) {
+        changed = false
+        projectFiles.folders.forEach((folder) => {
+          if (descendantFolderIds.has(folder.parentId) && !descendantFolderIds.has(folder.id)) {
+            descendantFolderIds.add(folder.id)
+            changed = true
+          }
+        })
+      }
+      const removedFileIds = projectFiles.files.filter((file) => descendantFolderIds.has(file.parentId)).map((file) => file.id)
+      setProjectFiles((current) => ({
+        folders: current.folders.filter((folder) => !descendantFolderIds.has(folder.id)),
+        files: current.files.filter((file) => !descendantFolderIds.has(file.parentId)),
+      }))
+      if (removedFileIds.includes(activeFileId)) setActiveFileId(null)
+    }
+    notify(`${type === 'folder' ? 'Folder' : 'File'} deleted`)
+  }
+
+  function saveActiveFileContent(content) {
+    setCodes((current) => ({ ...current, [language]: content }))
+    if (activeFileId) {
+      setProjectFiles((current) => ({
+        ...current,
+        files: current.files.map((file) => file.id === activeFileId ? { ...file, content } : file),
+      }))
+    }
+  }
+
+  function renderFileTree(parentId = null, depth = 0) {
+    const folders = projectFiles.folders.filter((folder) => folder.parentId === parentId)
+    const files = projectFiles.files.filter((file) => file.parentId === parentId)
+    return (
+      <div className="file-tree-level">
+        {folders.map((folder) => {
+          const isExpanded = expandedFolders.includes(folder.id)
+          return (
+            <div className="file-tree-group" key={folder.id}>
+              <div className="file-tree-row folder-row" style={{ '--tree-depth': depth }}>
+                <button className="file-tree-main" onClick={() => toggleFolder(folder.id)} title={folder.name}>
+                  <span className={`tree-caret ${isExpanded ? 'expanded' : ''}`}>›</span>
+                  <span className="tree-folder-icon">▰</span>
+                  <span className="tree-item-name">{folder.name}</span>
+                </button>
+                <div className="file-tree-actions">
+                  <button title="Create subfolder" onClick={() => createFolder(folder.id)}>＋</button>
+                  <button title="Create file in folder" onClick={() => createProjectFile(folder.id)}>＋F</button>
+                  <button title="Rename folder" onClick={() => renameProjectItem(folder, 'folder')}>⋯</button>
+                  {folder.id !== 'folder-root' && <button title="Delete folder" onClick={() => deleteProjectItem(folder, 'folder')}>×</button>}
+                </div>
+              </div>
+              {isExpanded && <div className="file-tree-children">{renderFileTree(folder.id, depth + 1)}</div>}
+            </div>
+          )
+        })}
+        {files.map((file) => (
+          <div className={`file-tree-row file-row ${activeFileId === file.id ? 'selected' : ''}`} style={{ '--tree-depth': depth }} key={file.id}>
+            <button className="file-tree-main" onClick={() => openProjectFile(file)} title={`Open ${file.name}`}>
+              <span className="tree-file-icon">{file.language === 'python' ? 'Py' : file.language === 'java' ? 'J' : 'JS'}</span>
+              <span className="tree-item-name">{file.name}</span>
+            </button>
+            <div className="file-tree-actions">
+              <button title="Rename file" onClick={() => renameProjectItem(file, 'file')}>⋯</button>
+              <button title="Delete file" onClick={() => deleteProjectItem(file, 'file')}>×</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   function runCode() {
@@ -121,6 +295,17 @@ function App() {
         <button className="workspace-switch"><span className="workspace-dot" /> {projectName} <span className="chevron">⌄</span></button>
         <div className="nav-scroll">
           {navGroups.map((group) => <div className="nav-group" key={group.title}><div className="nav-heading">{group.title}</div>{group.items.map((item) => <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`} onClick={() => setPage(item.id)}><Icon>{item.icon}</Icon>{item.label}{item.id === 'editor' && <span className="nav-live" />}</button>)}</div>)}
+          <section className="my-files-section" aria-label="My Files">
+            <div className="my-files-heading">
+              <span>MY FILES</span>
+              <div className="my-files-heading-actions">
+                <button title="Create folder" onClick={() => createFolder(null)}>＋</button>
+                <button title="Create file" onClick={() => createProjectFile(null)}>＋F</button>
+              </div>
+            </div>
+            <div className="my-files-tree">{renderFileTree()}</div>
+            <p className="my-files-note">Saved in this browser</p>
+          </section>
         </div>
         <div className="sidebar-bottom"><button className="nav-item" onClick={() => setShowSettings(true)}><Icon>⚙</Icon> Settings</button><div className="profile"><div className="avatar">G</div><div><strong>Developer</strong><small>Local workspace</small></div><span className="more">•••</span></div></div>
       </aside>
@@ -130,7 +315,7 @@ function App() {
 
         {page === 'editor' && <>
           <section className="page-heading editor-heading"><div><div className="eyebrow">DEVELOPMENT ENVIRONMENT</div><h1>Code Editor</h1><p>Write, run and inspect programs across multiple languages.</p></div><div className="heading-actions"><span className="autosave"><span className="status-dot"/> All changes saved</span><button className="secondary-button" onClick={() => notify('Share link copied (demo)')}>↗ Share</button></div></section>
-          <section className="editor-toolbar"><div className="file-label"><span className="file-icon">▣</span><span>{projectName}</span><span className="slash">/</span><strong>main.{currentMeta.ext}</strong><span className="unsaved-dot" /></div><div className="toolbar-right"><span className="runtime-label"><span className="status-dot"/> Runtime preview</span><button className="secondary-button compact" onClick={() => { setCodes({ ...codes, [language]: initialCode[language] }); notify('Starter code restored') }}>↺ Reset</button><button className="run-button" onClick={runCode} disabled={runState === 'running'}><span>▶</span> {runState === 'running' ? 'Running…' : 'Run Code'}</button><button className="stop-button" onClick={stopCode} disabled={runState !== 'running'}>■</button></div></section>
+          <section className="editor-toolbar"><div className="file-label"><span className="file-icon">▣</span><span>{projectName}</span><span className="slash">/</span><strong>{projectFiles.files.find((file) => file.id === activeFileId)?.name || `main.${currentMeta.ext}`}</strong><span className="unsaved-dot" /></div><div className="toolbar-right"><span className="runtime-label"><span className="status-dot"/> Runtime preview</span><button className="secondary-button compact" onClick={() => { setCodes({ ...codes, [language]: initialCode[language] }); notify('Starter code restored') }}>↺ Reset</button><button className="run-button" onClick={runCode} disabled={runState === 'running'}><span>▶</span> {runState === 'running' ? 'Running…' : 'Run Code'}</button><button className="stop-button" onClick={stopCode} disabled={runState !== 'running'}>■</button></div></section>
           <section className="language-toolbar" aria-label="Editor language selection">
             <div className="language-picker">
               <label className="language-picker-label" htmlFor="editor-language">Language</label>
@@ -157,7 +342,7 @@ function App() {
             <span className="language-toolbar-spacer" />
             <span className="editor-info">UTF-8&nbsp;&nbsp; · &nbsp;&nbsp;Spaces: 4&nbsp;&nbsp; · &nbsp;&nbsp;{currentMeta.label}</span>
           </section>
-          <div className="workspace-grid"><section className="code-panel"><div className="panel-title"><div><span className="panel-dot"/> main.{currentMeta.ext}</div><div className="panel-tools"><span>⌘</span><button onClick={() => { navigator.clipboard?.writeText(codes[language]); notify('Code copied') }} title="Copy code">▢</button><button onClick={() => setCodes({ ...codes, [language]: '' })} title="Clear editor">⌫</button></div></div><div className="code-editor"><div className="line-numbers">{codes[language].split('\n').map((_, i) => <span key={i}>{i + 1}</span>)}</div><textarea aria-label="Code editor" spellCheck="false" value={codes[language]} onChange={(event) => setCodes({ ...codes, [language]: event.target.value })} /></div><div className="editor-footer"><span>● {runState === 'running' ? 'Executing' : 'Ready'}</span><span>Ln {codes[language].split('\n').length}, Col 1</span></div></section>
+          <div className="workspace-grid"><section className="code-panel"><div className="panel-title"><div><span className="panel-dot"/> {projectFiles.files.find((file) => file.id === activeFileId)?.name || `main.${currentMeta.ext}`}</div><div className="panel-tools"><span>⌘</span><button onClick={() => { navigator.clipboard?.writeText(codes[language]); notify('Code copied') }} title="Copy code">▢</button><button onClick={() => setCodes({ ...codes, [language]: '' })} title="Clear editor">⌫</button></div></div><div className="code-editor"><div className="line-numbers">{codes[language].split('\n').map((_, i) => <span key={i}>{i + 1}</span>)}</div><textarea aria-label="Code editor" spellCheck="false" value={codes[language]} onChange={(event) => saveActiveFileContent(event.target.value)} /></div><div className="editor-footer"><span>● {runState === 'running' ? 'Executing' : 'Ready'}</span><span>Ln {codes[language].split('\n').length}, Col 1</span></div></section>
             <section className="console-panel"><div className="console-header"><div className="console-tabs"><button className={activeTab === 'output' ? 'active' : ''} onClick={() => setActiveTab('output')}>Output</button><button className={activeTab === 'problems' ? 'active' : ''} onClick={() => setActiveTab('problems')}>Problems <span className="problem-count">0</span></button><button className={activeTab === 'terminal' ? 'active' : ''} onClick={() => setActiveTab('terminal')}>Terminal</button></div><button className="clear-button" onClick={clearOutput}>Clear console</button></div><div className="console-content">{activeTab === 'output' ? output.map((line, index) => <div className={`output-line ${index === 0 && line.includes('successfully') ? 'success-line' : ''}`} key={`${line}-${index}`}>{line || '\u00a0'}</div>) : activeTab === 'problems' ? <div className="empty-state"><span>✓</span><strong>No problems detected</strong><small>Diagnostics will appear here.</small></div> : <div className="output-line">$ PolyglotMesh terminal ready (demo)</div>}</div><div className="console-status"><span><span className="status-dot"/> {runState === 'running' ? 'Running' : 'Idle'}</span><span>Frontend demo · Mock execution</span></div></section></div>
           <section className="bottom-stats"><div className="stat-card"><span className="stat-icon blue">◷</span><div><small>Last execution</small><strong>{runs[0] ? `${runs[0].time} ms` : '—'}</strong></div></div><div className="stat-card"><span className="stat-icon purple">▣</span><div><small>Memory used</small><strong>{runs.length ? '24.8 MB' : '—'}</strong></div></div><div className="stat-card"><span className="stat-icon green">✓</span><div><small>Execution status</small><strong>{runState === 'success' ? 'Successful' : runState === 'running' ? 'Running' : 'Waiting'}</strong></div></div><div className="stat-card"><span className="stat-icon amber">⌁</span><div><small>Runtime</small><strong>Runtime preview</strong></div></div></section>
         </>}
