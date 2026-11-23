@@ -208,14 +208,14 @@ function App() {
               <div className="file-tree-row folder-row" style={{ '--tree-depth': depth }}>
                 <button className="file-tree-main" onClick={() => toggleFolder(folder.id)} title={folder.name}>
                   <span className={`tree-caret ${isExpanded ? 'expanded' : ''}`}>›</span>
-                  <span className="tree-folder-icon">▰</span>
+                  <span className="tree-folder-icon" aria-hidden="true">📁</span>
                   <span className="tree-item-name">{folder.name}</span>
                 </button>
                 <div className="file-tree-actions">
-                  <button title="Create subfolder" onClick={() => createFolder(folder.id)}>＋</button>
-                  <button title="Create file in folder" onClick={() => createProjectFile(folder.id)}>＋F</button>
-                  <button title="Rename folder" onClick={() => renameProjectItem(folder, 'folder')}>⋯</button>
-                  {folder.id !== 'folder-root' && <button title="Delete folder" onClick={() => deleteProjectItem(folder, 'folder')}>×</button>}
+                  <button title="Create a subfolder" aria-label="Create a subfolder" onClick={() => createFolder(folder.id)}>＋</button>
+                  <button title="Create a file in this folder" aria-label="Create a file in this folder" onClick={() => createProjectFile(folder.id)}>＋F</button>
+                  <button title="Rename folder" aria-label="Rename folder" onClick={() => renameProjectItem(folder, 'folder')}>⋯</button>
+                  {folder.id !== 'folder-root' && <button title="Delete folder" aria-label="Delete folder" onClick={() => deleteProjectItem(folder, 'folder')}>×</button>}
                 </div>
               </div>
               {isExpanded && <div className="file-tree-children">{renderFileTree(folder.id, depth + 1)}</div>}
@@ -225,12 +225,12 @@ function App() {
         {files.map((file) => (
           <div className={`file-tree-row file-row ${activeFileId === file.id ? 'selected' : ''}`} style={{ '--tree-depth': depth }} key={file.id}>
             <button className="file-tree-main" onClick={() => openProjectFile(file)} title={`Open ${file.name}`}>
-              <span className="tree-file-icon">{file.language === 'python' ? 'Py' : file.language === 'java' ? 'J' : 'JS'}</span>
+              <span className={`tree-file-icon ${file.language}`} aria-hidden="true">{file.language === 'python' ? 'PY' : file.language === 'java' ? 'J' : 'JS'}</span>
               <span className="tree-item-name">{file.name}</span>
             </button>
             <div className="file-tree-actions">
-              <button title="Rename file" onClick={() => renameProjectItem(file, 'file')}>⋯</button>
-              <button title="Delete file" onClick={() => deleteProjectItem(file, 'file')}>×</button>
+              <button title="Rename file" aria-label="Rename file" onClick={() => renameProjectItem(file, 'file')}>⋯</button>
+              <button title="Delete file" aria-label="Delete file" onClick={() => deleteProjectItem(file, 'file')}>×</button>
             </div>
           </div>
         ))}
@@ -297,14 +297,23 @@ function App() {
           {navGroups.map((group) => <div className="nav-group" key={group.title}><div className="nav-heading">{group.title}</div>{group.items.map((item) => <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`} onClick={() => setPage(item.id)}><Icon>{item.icon}</Icon>{item.label}{item.id === 'editor' && <span className="nav-live" />}</button>)}</div>)}
           <section className="my-files-section" aria-label="My Files">
             <div className="my-files-heading">
-              <span>MY FILES</span>
-              <div className="my-files-heading-actions">
-                <button title="Create folder" onClick={() => createFolder(null)}>＋</button>
-                <button title="Create file" onClick={() => createProjectFile(null)}>＋F</button>
-              </div>
+              <span>EXPLORER</span>
+              <span className="my-files-heading-caption">MY FILES</span>
             </div>
-            <div className="my-files-tree">{renderFileTree()}</div>
-            <p className="my-files-note">Saved in this browser</p>
+            <div className="my-files-toolbar">
+              <button type="button" onClick={() => createProjectFile(null)} title="Create a new program file">
+                <span aria-hidden="true">＋</span> New File
+              </button>
+              <button type="button" onClick={() => createFolder(null)} title="Create a new folder">
+                <span aria-hidden="true">＋</span> New Folder
+              </button>
+            </div>
+            <div className="my-files-tree">
+              {projectFiles.folders.length === 0 && projectFiles.files.length === 0
+                ? <div className="file-tree-empty">No files yet. Create a folder or file to get started.</div>
+                : renderFileTree()}
+            </div>
+            <p className="my-files-note"><span className="storage-status-dot" /> Saved in this browser</p>
           </section>
         </div>
         <div className="sidebar-bottom"><button className="nav-item" onClick={() => setShowSettings(true)}><Icon>⚙</Icon> Settings</button><div className="profile"><div className="avatar">G</div><div><strong>Developer</strong><small>Local workspace</small></div><span className="more">•••</span></div></div>

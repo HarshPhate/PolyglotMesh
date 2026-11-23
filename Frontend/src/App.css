@@ -1476,77 +1476,101 @@ textarea:focus-visible {
 }
 
 
-/* My Files project explorer */
+/* My Files: VS Code-inspired project explorer */
+.sidebar {
+  width: 260px;
+  flex-basis: 260px;
+}
+
 .my-files-section {
-  margin: 22px 0 18px;
-  padding: 0 10px 12px;
+  margin: 18px -2px 14px;
+  padding: 0 2px 12px;
   border-top: 1px solid var(--line);
 }
 
 .my-files-heading {
-  min-height: 42px;
+  min-height: 34px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 5px 4px;
-  color: var(--muted);
+  gap: 8px;
+  padding: 7px 8px 3px;
+  color: var(--text);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
 }
 
-.my-files-heading-actions,
-.file-tree-actions {
+.my-files-heading-caption {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+.my-files-toolbar {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
+  padding: 4px 6px 9px;
 }
 
-.my-files-heading-actions button,
-.file-tree-actions button {
-  border: 0;
+.my-files-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 27px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
   border-radius: 5px;
-  background: transparent;
+  background: var(--panel2);
   color: var(--muted);
+  font-size: 10px;
   cursor: pointer;
-  font-size: 11px;
-  min-width: 23px;
-  min-height: 23px;
-  padding: 2px 5px;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
-.my-files-heading-actions button:hover,
-.file-tree-actions button:hover {
+.my-files-toolbar button span {
+  color: var(--blue);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.my-files-toolbar button:hover {
+  border-color: var(--blue);
   background: var(--hover);
   color: var(--text);
 }
 
 .my-files-tree {
-  max-height: 310px;
+  max-height: 330px;
   overflow: auto;
-  padding: 1px 0;
+  padding: 2px 3px 3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
 
 .file-tree-level {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .file-tree-children {
   margin-left: 12px;
-  padding-left: 7px;
+  padding-left: 8px;
   border-left: 1px solid var(--line);
 }
 
 .file-tree-row {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   min-width: 0;
-  min-height: 31px;
-  padding-left: calc(3px + var(--tree-depth, 0) * 3px);
-  border-radius: 6px;
+  min-height: 29px;
+  border-radius: 5px;
+  padding: 0 3px;
 }
 
 .file-tree-row:hover,
@@ -1557,12 +1581,14 @@ textarea:focus-visible {
 .file-tree-main {
   display: flex;
   align-items: center;
-  flex: 1;
-  gap: 7px;
+  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
-  min-height: 29px;
-  padding: 3px 4px;
+  min-height: 28px;
+  gap: 7px;
+  padding: 3px 5px;
   border: 0;
+  border-radius: 4px;
   background: transparent;
   color: var(--text);
   text-align: left;
@@ -1570,9 +1596,13 @@ textarea:focus-visible {
 }
 
 .tree-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 10px;
+  flex: 0 0 10px;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   transform: rotate(0deg);
   transition: transform .15s ease;
@@ -1583,8 +1613,13 @@ textarea:focus-visible {
 }
 
 .tree-folder-icon {
-  color: #d6a64b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex: 0 0 16px;
   font-size: 12px;
+  line-height: 1;
 }
 
 .tree-file-icon {
@@ -1592,7 +1627,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   width: 20px;
-  height: 18px;
+  height: 19px;
   flex: 0 0 20px;
   border-radius: 4px;
   background: var(--panel2);
@@ -1601,53 +1636,132 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.tree-file-icon.javascript {
+  color: #c69a36;
+  background: rgba(230, 180, 93, .13);
+}
+
+.tree-file-icon.python {
+  color: #4b9bd8;
+  background: rgba(75, 155, 216, .13);
+}
+
+.tree-file-icon.java {
+  color: #d77956;
+  background: rgba(215, 121, 86, .13);
+}
+
 .tree-item-name {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
-  color: var(--muted-strong, var(--text));
+  color: var(--text);
   font-size: 11px;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .file-tree-row.selected .tree-item-name {
-  color: var(--accent);
+  color: var(--blue);
   font-weight: 600;
 }
 
 .file-tree-actions {
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  right: 3px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 1px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, .12);
   opacity: 0;
-  transition: opacity .15s ease;
+  visibility: hidden;
+  transition: opacity .12s ease, visibility .12s ease;
 }
 
 .file-tree-row:hover .file-tree-actions,
 .file-tree-row:focus-within .file-tree-actions {
   opacity: 1;
+  visibility: visible;
+}
+
+.file-tree-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  min-height: 21px;
+  padding: 1px 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.file-tree-actions button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.file-tree-empty {
+  margin: 4px 5px;
+  padding: 12px 9px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 .my-files-note {
-  margin: 7px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 7px 8px 0;
   color: var(--muted);
   font-size: 9px;
+}
+
+.storage-status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: var(--green);
 }
 
 @media (max-width: 900px) {
   .file-tree-actions {
     opacity: 1;
+    visibility: visible;
   }
 }
 
 @media (max-width: 640px) {
+  .sidebar {
+    width: 250px;
+    flex-basis: 250px;
+  }
+
   .my-files-section {
-    margin-top: 15px;
+    margin-top: 14px;
   }
 
   .my-files-tree {
-    max-height: 220px;
+    max-height: 240px;
   }
 
   .file-tree-actions button {
-    min-width: 27px;
-    min-height: 27px;
+    min-width: 25px;
+    min-height: 25px;
   }
 }
