@@ -1765,3 +1765,126 @@ textarea:focus-visible {
     min-height: 25px;
   }
 }
+
+/* Sidebar navigation cards: clear boundaries, contrast edge and smooth hover */
+.app-shell .nav-group {
+  margin-bottom: 22px;
+}
+
+.app-shell .nav-heading {
+  padding: 0 10px 9px;
+}
+
+.app-shell .nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  margin: 6px 0;
+  padding: 9px 11px 9px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid #64748b;
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, .08);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+
+.app-shell .nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(100deg, rgba(108, 156, 255, .10), transparent 62%);
+  transition: opacity .2s ease;
+}
+
+.app-shell .nav-item:hover {
+  transform: translateX(3px);
+  border-color: var(--blue);
+  border-left-color: #f0b44c;
+  background: var(--panel2);
+  color: var(--text);
+  box-shadow: 0 5px 14px rgba(57, 118, 232, .16);
+}
+
+.app-shell .nav-item:hover::after { opacity: 1; }
+
+.app-shell .nav-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.app-shell .nav-item.active {
+  border-color: var(--blue);
+  border-left: 4px solid #f0b44c;
+  background: #1b2a43;
+  color: #dce8ff;
+  box-shadow: 0 4px 13px rgba(57, 118, 232, .20), inset 0 0 0 1px rgba(108, 156, 255, .12);
+}
+
+.app-shell .nav-item.active .icon { color: #9fc0ff; }
+
+.app-shell .nav-item .icon {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 17px;
+  transition: transform .2s ease, color .2s ease;
+}
+
+.app-shell .nav-item:hover .icon {
+  transform: scale(1.1);
+  color: #f0b44c;
+}
+
+.app-shell .nav-item > *:not(.nav-live) { position: relative; z-index: 1; }
+
+.app-shell .nav-live {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  box-shadow: 0 0 0 4px rgba(108, 156, 255, .12);
+}
+
+/* Light theme: contrasting blue outline with a warm accent edge */
+.app-shell.light .nav-item {
+  border-color: #dce5f2;
+  border-left-color: #9aa9bf;
+  background: #ffffff;
+  color: #33445f;
+  box-shadow: 0 2px 7px rgba(35, 63, 104, .06);
+}
+
+.app-shell.light .nav-item:hover {
+  border-color: #3976e8;
+  border-left-color: #d18a25;
+  background: #f7faff;
+  color: #1e3f72;
+  box-shadow: 0 5px 14px rgba(57, 118, 232, .13);
+}
+
+.app-shell.light .nav-item.active {
+  border-color: #3976e8;
+  border-left: 4px solid #d18a25;
+  background: #eaf1ff;
+  color: #2459ad;
+  box-shadow: 0 4px 13px rgba(57, 118, 232, .13), inset 0 0 0 1px rgba(57, 118, 232, .08);
+}
+
+.app-shell.light .nav-item.active .icon { color: #2459ad; }
+.app-shell.light .nav-item:hover .icon { color: #b7791f; }
+
+@media (max-width: 640px) {
+  .app-shell .nav-item { min-height: 44px; margin: 7px 0; }
+  .app-shell .nav-item:hover { transform: translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .nav-item, .app-shell .nav-item::after, .app-shell .nav-item .icon { transition: none; }
+  .app-shell .nav-item:hover { transform: none; }
+}
