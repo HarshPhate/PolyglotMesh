@@ -1888,3 +1888,197 @@ textarea:focus-visible {
   .app-shell .nav-item, .app-shell .nav-item::after, .app-shell .nav-item .icon { transition: none; }
   .app-shell .nav-item:hover { transform: none; }
 }
+
+
+/* Responsive PolyglotMesh brand and sidebar */
+.brand {
+  min-width: 0;
+  gap: 10px;
+}
+
+.brand > div:last-child {
+  min-width: 0;
+}
+
+.brand strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand small {
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.brand-mark {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  font-size: 17px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(71, 124, 233, .22);
+}
+
+/* Keep the full brand readable on tablet and phone widths. */
+@media (max-width: 700px) {
+  .sidebar {
+    width: 174px;
+    flex: 0 0 174px;
+    padding: 15px 9px 12px;
+  }
+
+  .brand {
+    gap: 8px;
+    padding: 0 2px 20px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .brand > div:last-child {
+    display: block;
+    min-width: 0;
+  }
+
+  .brand strong {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .brand small {
+    margin-top: 2px;
+    font-size: 6px;
+    letter-spacing: .8px;
+  }
+
+  .workspace-switch {
+    display: block;
+    width: 100%;
+    margin-bottom: 17px;
+    padding: 9px 7px;
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-heading {
+    display: block;
+    font-size: 8px;
+    padding: 8px 5px;
+  }
+
+  .app-shell .nav-item,
+  .app-shell .nav-item:not(.active),
+  .app-shell .nav-item.active {
+    display: flex;
+    justify-content: flex-start;
+    min-height: 37px;
+    padding: 8px 7px;
+    font-size: 9px;
+    gap: 6px;
+  }
+
+  .app-shell .nav-item .icon {
+    font-size: 13px;
+  }
+
+  .nav-live {
+    display: block;
+  }
+
+  .my-files-section {
+    margin-top: 12px;
+  }
+
+  .my-files-heading {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .my-files-toolbar {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .my-files-toolbar button {
+    font-size: 8px;
+    padding: 4px 5px;
+  }
+
+  .sidebar-bottom .nav-item {
+    display: flex;
+  }
+
+  .profile {
+    display: none;
+  }
+
+  .main-area {
+    min-width: 0;
+  }
+
+  .editor-info {
+    display: none;
+  }
+
+  .language-toolbar {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 420px) {
+  .sidebar {
+    width: 150px;
+    flex-basis: 150px;
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 14px;
+  }
+
+  .brand strong {
+    font-size: 10px;
+  }
+
+  .brand small {
+    font-size: 5px;
+    letter-spacing: .55px;
+  }
+
+  .app-shell .nav-item,
+  .app-shell .nav-item:not(.active),
+  .app-shell .nav-item.active {
+    font-size: 8px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .tree-item-name {
+    font-size: 9px;
+  }
+
+  .file-tree-actions button {
+    min-width: 18px;
+    min-height: 20px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+}
