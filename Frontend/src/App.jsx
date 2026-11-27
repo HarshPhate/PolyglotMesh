@@ -291,8 +291,8 @@ function App() {
   return (
     <div className={`app-shell ${theme}`}>
       <aside className="sidebar">
-        <div className="brand"><div className="brand-mark">P<span>m</span></div><div><strong>PolyglotMesh</strong><small>RUNTIME WORKSPACE</small></div></div>
-        <button className="workspace-switch"><span className="workspace-dot" /> {projectName} <span className="chevron">⌄</span></button>
+        <div className="brand"><div className="brand-mark" aria-label="PolyglotMesh logo"><span className="brand-mark-primary">P</span><span className="brand-mark-secondary">m</span></div><div className="brand-copy"><strong>PolyglotMesh</strong><small>RUNTIME WORKSPACE</small></div></div>
+        <button className="workspace-switch" type="button" aria-label={`Current project: ${projectName}`}><span className="workspace-dot" /><span className="workspace-name">{projectName}</span></button>
         <div className="nav-scroll">
           {navGroups.map((group) => <div className="nav-group" key={group.title}><div className="nav-heading">{group.title}</div>{group.items.map((item) => <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`} onClick={() => setPage(item.id)}><Icon>{item.icon}</Icon>{item.label}{item.id === 'editor' && <span className="nav-live" />}</button>)}</div>)}
           <section className="my-files-section" aria-label="My Files">

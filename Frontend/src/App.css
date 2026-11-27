@@ -2082,3 +2082,153 @@ textarea:focus-visible {
     padding-right: 2px;
   }
 }
+
+
+/* Refined PolyglotMesh brand mark: deliberate P/m alignment */
+.brand {
+  min-width: 0;
+  align-items: center;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.brand-mark {
+  position: relative;
+  display: block;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #477ce9 0%, #665fe0 58%, #8060d7 100%);
+  box-shadow: 0 5px 14px rgba(71, 124, 233, 0.24);
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.brand-mark-primary {
+  position: absolute;
+  top: 5px;
+  left: 11px;
+  color: #ffffff;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.6px;
+}
+
+.brand-mark-secondary {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  color: #c9efff;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.4px;
+}
+
+.workspace-switch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 12px;
+}
+
+.workspace-switch .workspace-dot {
+  flex: 0 0 8px;
+  margin: 0;
+}
+
+.workspace-name {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive logo and project selector */
+@media (max-width: 700px) {
+  .brand {
+    gap: 8px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .brand-mark {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .brand-mark-primary {
+    top: 4px;
+    left: 9px;
+    font-size: 19px;
+  }
+
+  .brand-mark-secondary {
+    right: 7px;
+    bottom: 3px;
+    font-size: 11px;
+  }
+
+  .brand-copy strong {
+    font-size: 11px;
+  }
+
+  .brand-copy small {
+    font-size: 6px;
+    letter-spacing: 0.85px;
+  }
+
+  .workspace-switch {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    min-height: 39px;
+    padding: 8px 9px;
+  }
+
+  .workspace-name {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-mark {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .brand-mark-primary {
+    top: 4px;
+    left: 8px;
+    font-size: 17px;
+  }
+
+  .brand-mark-secondary {
+    right: 6px;
+    bottom: 3px;
+    font-size: 10px;
+  }
+
+  .brand-copy strong {
+    font-size: 10px;
+  }
+
+  .brand-copy small {
+    font-size: 5px;
+    letter-spacing: 0.65px;
+  }
+}
